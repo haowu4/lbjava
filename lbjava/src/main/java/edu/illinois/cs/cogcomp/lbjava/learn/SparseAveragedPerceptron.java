@@ -490,7 +490,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
 
 
         /**
-         * Takes the dot product of this <code>AveragedWeightVector</code> with the argument vector,
+         * Takes the dot product of this <code>HashAveragedWeightVector</code> with the argument vector,
          * using the hard coded default weight.
          *
          * @param exampleFeatures The example's array of feature indices.
@@ -503,7 +503,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
 
 
         /**
-         * Takes the dot product of this <code>AveragedWeightVector</code> with the argument vector,
+         * Takes the dot product of this <code>HashAveragedWeightVector</code> with the argument vector,
          * using the specified default weight when one is not yet present in this vector.
          *
          * @param exampleFeatures The example's array of feature indices.
@@ -615,10 +615,10 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * @param out The stream to write to.
          **/
         public void write(PrintStream out) {
-            out.println("Begin AveragedWeightVector");
+            out.println("Begin HashAveragedWeightVector");
             for (int i = 0; i < averagedWeights.size(); ++i)
                 out.println(getAveragedWeight(i, 0));
-            out.println("End AveragedWeightVector");
+            out.println("End HashAveragedWeightVector");
         }
 
 
@@ -632,7 +632,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * @param lex The feature lexicon.
          **/
         public void write(PrintStream out, Lexicon lex) {
-            out.println("Begin AveragedWeightVector");
+            out.println("Begin HashAveragedWeightVector");
 
             Map map = lex.getMap();
             Map.Entry[] entries = (Map.Entry[]) map.entrySet().toArray(new Map.Entry[map.size()]);
@@ -676,7 +676,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
                 out.println(weight);
             }
 
-            out.println("End AveragedWeightVector");
+            out.println("End HashAveragedWeightVector");
         }
 
 
@@ -710,9 +710,9 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
 
 
         /**
-         * Returns a copy of this <code>AveragedWeightVector</code>.
+         * Returns a copy of this <code>HashAveragedWeightVector</code>.
          *
-         * @return A copy of this <code>AveragedWeightVector</code>.
+         * @return A copy of this <code>HashAveragedWeightVector</code>.
          **/
         public Object clone() {
             AveragedWeightVector clone = (AveragedWeightVector) super.clone();
