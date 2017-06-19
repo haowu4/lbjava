@@ -9,19 +9,19 @@ import java.util.Arrays;
 /**
  * Created by haowu4 on 6/16/17.
  */
-interface Vector extends Cloneable, Serializable {
+public interface Vector extends Cloneable, Serializable {
+
+    double dot(int[] exampleFeatures, double[] exampleValues);
+
+    double dot(int[] exampleFeatures, double[] exampleValues, double defaultW);
+
+
     /**
      * Check if the implementation of this object is a dense vector.
      *
      * @return true is the implementation of this object is a dense vector.
      */
     boolean isDense();
-
-    /**
-     * Return an optimized version of this vector.
-     * @return
-     */
-    Vector optimize();
 
     /**
      * Retrieves the value stored at the specified index of the vector, or 0 if the vector isn't
@@ -106,10 +106,10 @@ interface Vector extends Cloneable, Serializable {
     double max();
 
 
-    /**
-     * Sorts this vector in increasing order.
-     */
-    void sort();
+//    /**
+//     * Sorts this vector in increasing order.
+//     */
+//    void sort();
 
 
     /**
@@ -126,7 +126,7 @@ interface Vector extends Cloneable, Serializable {
      * elements in the list are less than <code>v</code>. Note that this guarantees that the
      * return value will be &gt;= 0 if and only if <code>v</code> is found.
      **/
-    int binarySearch(double v);
+//    int binarySearch(double v);
 
     /**
      * Returns a new array of <code>double</code>s containing the same data as this vector.
@@ -149,5 +149,5 @@ interface Vector extends Cloneable, Serializable {
      **/
     void read(ExceptionlessInputStream in);
 
-
+    Object clone();
 }

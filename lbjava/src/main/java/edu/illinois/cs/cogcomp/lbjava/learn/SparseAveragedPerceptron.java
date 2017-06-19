@@ -1,7 +1,7 @@
 /**
  * This software is released under the University of Illinois/Research and Academic Use License. See
  * the LICENSE file in the root folder for details. Copyright (c) 2016
- *
+ * <p>
  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
  * http://cogcomp.cs.illinois.edu/
  */
@@ -12,22 +12,25 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 
-import edu.illinois.cs.cogcomp.core.datastructures.vectors.DVector;
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessInputStream;
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessOutputStream;
 import edu.illinois.cs.cogcomp.lbjava.classify.Classifier;
 import edu.illinois.cs.cogcomp.lbjava.classify.Feature;
+import edu.illinois.cs.cogcomp.lbjava.learn.vector.AveragedWeightVectorLike;
+import edu.illinois.cs.cogcomp.lbjava.learn.vector.OptimizedVector;
+
+import static edu.illinois.cs.cogcomp.lbjava.learn.vector.OptimizedVector.shouldOptimize;
 
 /**
  * An approximation to voted Perceptron, in which a weighted average of the weight vectors arrived
  * at during training becomes the weight vector used to make predictions after training.
- *
+ * <p>
  * <p>
  * During training, after each example <i>e<sub>i</sub></i> is processed, the weight vector
  * <i>w<sub>i</sub></i> becomes the active weight vector used to make predictions on future training
  * examples. If a mistake was made on <i>e<sub>i</sub></i>, <i>w<sub>i</sub></i> will be different
  * than <i>w<sub>i - 1</sub></i>. Otherwise, it will remain unchanged.
- *
+ * <p>
  * <p>
  * After training, each distinct weight vector arrived at during training is associated with an
  * integer weight equal to the number of examples whose training made that weight vector active. A
@@ -35,13 +38,13 @@ import edu.illinois.cs.cogcomp.lbjava.classify.Feature;
  * vectors weighted as described. <i>w<sup>*</sup></i> is used to make all predictions returned to
  * the user through methods such as {@link Classifier#classify(Object)} or
  * {@link Classifier#discreteValue(Object)}.
- *
+ * <p>
  * <p>
  * The above description is a useful way to think about the operation of this {@link Learner}.
  * However, the user should note that this implementation never explicitly stores
  * <i>w<sup>*</sup></i>. Instead, it is computed efficiently on demand. Thus, interspersed online
  * training and evaluation is efficient and operates as expected.
- *
+ * <p>
  * <p>
  * It is assumed that {@link Learner#labeler} is a single discrete classifier that produces the same
  * feature for every example object and that the values that feature may take are available through
@@ -53,7 +56,9 @@ import edu.illinois.cs.cogcomp.lbjava.classify.Feature;
  * @author Nick Rizzolo
  **/
 public class SparseAveragedPerceptron extends SparsePerceptron {
-    /** Default for {@link LinearThresholdUnit#weightVector}. */
+    /**
+     * Default for {@link LinearThresholdUnit#weightVector}.
+     */
     public static final AveragedWeightVector defaultWeightVector = new AveragedWeightVector();
 
     /**
@@ -61,7 +66,9 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * {@link SparseAveragedPerceptron.AveragedWeightVector}.
      **/
     protected AveragedWeightVector awv;
-    /** Keeps the extra information necessary to compute the averaged bias. */
+    /**
+     * Keeps the extra information necessary to compute the averaged bias.
+     */
     protected double averagedBias;
 
 
@@ -99,8 +106,8 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * the hyperplane will be given the specified thickness, while the name of the classifier gets
      * the empty string.
      *
-     * @param r The desired learning rate value.
-     * @param t The desired threshold value.
+     * @param r  The desired learning rate value.
+     * @param t  The desired threshold value.
      * @param pt The desired thickness.
      **/
     public SparseAveragedPerceptron(double r, double t, double pt) {
@@ -112,8 +119,8 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * hyperplane will be given the specified separate thicknesses, while the name of the classifier
      * gets the empty string.
      *
-     * @param r The desired learning rate value.
-     * @param t The desired threshold value.
+     * @param r  The desired learning rate value.
+     * @param t  The desired threshold value.
      * @param pt The desired positive thickness.
      * @param nt The desired negative thickness.
      **/
@@ -166,9 +173,9 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * Use this constructor to fit a thick separator, where both the positive and negative sides of
      * the hyperplane will be given the specified thickness.
      *
-     * @param n The name of the classifier.
-     * @param r The desired learning rate value.
-     * @param t The desired threshold value.
+     * @param n  The name of the classifier.
+     * @param r  The desired learning rate value.
+     * @param t  The desired threshold value.
      * @param pt The desired thickness.
      **/
     public SparseAveragedPerceptron(String n, double r, double t, double pt) {
@@ -179,9 +186,9 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * Use this constructor to fit a thick separator, where the positive and negative sides of the
      * hyperplane will be given the specified separate thicknesses.
      *
-     * @param n The name of the classifier.
-     * @param r The desired learning rate value.
-     * @param t The desired threshold value.
+     * @param n  The name of the classifier.
+     * @param r  The desired learning rate value.
+     * @param t  The desired threshold value.
      * @param pt The desired positive thickness.
      * @param nt The desired negative thickness.
      **/
@@ -212,7 +219,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * Retrieves the parameters that are set in this learner.
      *
      * @return An object containing all the values of the parameters that control the behavior of
-     *         this learning algorithm.
+     * this learning algorithm.
      **/
     public Learner.Parameters getParameters() {
         Parameters p = new Parameters((SparsePerceptron.Parameters) super.getParameters());
@@ -237,7 +244,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * produced by the extractor.
      *
      * @param exampleFeatures The example's array of feature indices.
-     * @param exampleValues The example's array of feature values.
+     * @param exampleValues   The example's array of feature values.
      * @return The result of the dot product plus the bias.
      **/
     public double score(int[] exampleFeatures, double[] exampleValues) {
@@ -255,7 +262,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * weight vector.
      *
      * @param exampleFeatures The example's array of feature indices.
-     * @param exampleValues The example's array of feature values.
+     * @param exampleValues   The example's array of feature values.
      **/
     public void promote(int[] exampleFeatures, double[] exampleValues, double rate) {
         bias += rate;
@@ -271,7 +278,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * from the weight vector.
      *
      * @param exampleFeatures The example's array of feature indices.
-     * @param exampleValues The example's array of feature values.
+     * @param exampleValues   The example's array of feature values.
      **/
     public void demote(int[] exampleFeatures, double[] exampleValues, double rate) {
         bias -= rate;
@@ -283,17 +290,17 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
 
 
     /**
-     * This method works just like {@link LinearThresholdUnit#learn(int[],double[],int[],double[])},
+     * This method works just like {@link LinearThresholdUnit#learn(int[], double[], int[], double[])},
      * except it notifies its weight vector when it got an example correct in addition to updating
      * it when it makes a mistake.
      *
      * @param exampleFeatures The example's array of feature indices
-     * @param exampleValues The example's array of feature values
-     * @param exampleLabels The example's label(s)
-     * @param labelValues The labels' values
+     * @param exampleValues   The example's array of feature values
+     * @param exampleLabels   The example's label(s)
+     * @param labelValues     The labels' values
      **/
     public void learn(int[] exampleFeatures, double[] exampleValues, int[] exampleLabels,
-            double[] labelValues) {
+                      double[] labelValues) {
         assert exampleLabels.length == 1 : "Example must have a single label.";
         assert exampleLabels[0] == 0 || exampleLabels[0] == 1 : "Example has unallowed label value.";
 
@@ -323,7 +330,9 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
     }
 
 
-    /** Resets the weight vector to all zeros. */
+    /**
+     * Resets the weight vector to all zeros.
+     */
     public void forget() {
         super.forget();
         awv = (AveragedWeightVector) weightVector;
@@ -372,6 +381,13 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
         super.read(in);
         awv = (AveragedWeightVector) weightVector;
         averagedBias = in.readDouble();
+        String inferenceMode = System.getProperty("lbjava.inferenceMode");
+        if (inferenceMode != null && Boolean.parseBoolean(inferenceMode)) {
+            // Optimize this one.
+            System.out.println("Optimizing SAP");
+            awv = new InferenceRuntimeAWVector(awv);
+            weightVector = awv;
+        }
     }
 
 
@@ -385,7 +401,9 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      * @author Nick Rizzolo
      **/
     public static class Parameters extends SparsePerceptron.Parameters {
-        /** Sets all the default values. */
+        /**
+         * Sets all the default values.
+         */
         public Parameters() {
             weightVector = (AveragedWeightVector) defaultWeightVector.clone();
         }
@@ -400,7 +418,9 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
         }
 
 
-        /** Copy constructor. */
+        /**
+         * Copy constructor.
+         */
         public Parameters(Parameters p) {
             super(p);
         }
@@ -417,6 +437,34 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
         }
     }
 
+    public static class InferenceRuntimeAWVector extends AveragedWeightVector {
+
+        public InferenceRuntimeAWVector() {
+            this.weights = new OptimizedVector();
+        }
+
+        public InferenceRuntimeAWVector(AveragedWeightVector base) {
+            double[] vs = new double[base.size()];
+            for (int i = 0; i < base.size(); i++) {
+                vs[i] = base.getAveragedWeight(i, 0);
+            }
+            this.weights = new OptimizedVector(vs);
+            if (shouldOptimize()) {
+                this.weights.optimize();
+            }
+            this.examples = base.examples;
+        }
+
+        @Override
+        public double dot(int[] exampleFeatures, double[] exampleValues) {
+            return this.weights.dot(exampleFeatures, exampleValues);
+        }
+
+        @Override
+        public double dot(int[] exampleFeatures, double[] exampleValues, double defaultW) {
+            return this.weights.dot(exampleFeatures, exampleValues, defaultW);
+        }
+    }
 
     /**
      * This implementation of a sparse weight vector associates two <code>double</code>s with each
@@ -426,20 +474,24 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
      *
      * @author Nick Rizzolo
      **/
-    public static class AveragedWeightVector extends SparseWeightVector {
+    public static class AveragedWeightVector extends SparseWeightVector implements AveragedWeightVectorLike {
         /**
          * Together with {@link SparseWeightVector#weights}, this vector provides enough information
          * to reconstruct the average of all weight vectors arrived at during the course of
          * learning.
          **/
-        public DVector averagedWeights;
-        /** Counts the total number of training examples this vector has seen. */
+        public OptimizedVector averagedWeights;
+        /**
+         * Counts the total number of training examples this vector has seen.
+         */
         protected int examples;
 
 
-        /** Simply instantiates the weight vectors. */
+        /**
+         * Simply instantiates the weight vectors.
+         */
         public AveragedWeightVector() {
-            this(new DVector(defaultCapacity));
+            this(new OptimizedVector(defaultCapacity));
         }
 
         /**
@@ -448,7 +500,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * @param w An array of weights.
          **/
         public AveragedWeightVector(double[] w) {
-            this(new DVector(w));
+            this(new OptimizedVector(w));
         }
 
         /**
@@ -456,18 +508,26 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          *
          * @param w A vector of weights.
          **/
-        public AveragedWeightVector(DVector w) {
-            super((DVector) w.clone());
+        public AveragedWeightVector(OptimizedVector w) {
+            super((OptimizedVector) w.clone());
             averagedWeights = w;
         }
 
+        @Override
+        public boolean isCompact() {
+            return false;
+        }
 
-        /** Increments the {@link #examples} variable. */
+        /**
+         * Increments the {@link #examples} variable.
+         */
         public void correctExample() {
             ++examples;
         }
 
-        /** Returns the {@link #examples} variable. */
+        /**
+         * Returns the {@link #examples} variable.
+         */
         public int getExamples() {
             return examples;
         }
@@ -477,7 +537,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * Returns the averaged weight of the given feature.
          *
          * @param featureIndex The feature index.
-         * @param defaultW The default weight.
+         * @param defaultW     The default weight.
          * @return The weight of the feature.
          **/
         public double getAveragedWeight(int featureIndex, double defaultW) {
@@ -490,11 +550,11 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
 
 
         /**
-         * Takes the dot product of this <code>HashAveragedWeightVector</code> with the argument vector,
+         * Takes the dot product of this <code>AveragedWeightVector</code> with the argument vector,
          * using the hard coded default weight.
          *
          * @param exampleFeatures The example's array of feature indices.
-         * @param exampleValues The example's array of feature values.
+         * @param exampleValues   The example's array of feature values.
          * @return The computed dot product.
          **/
         public double dot(int[] exampleFeatures, double[] exampleValues) {
@@ -503,12 +563,12 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
 
 
         /**
-         * Takes the dot product of this <code>HashAveragedWeightVector</code> with the argument vector,
+         * Takes the dot product of this <code>AveragedWeightVector</code> with the argument vector,
          * using the specified default weight when one is not yet present in this vector.
          *
          * @param exampleFeatures The example's array of feature indices.
-         * @param exampleValues The example's array of feature values.
-         * @param defaultW The default weight.
+         * @param exampleValues   The example's array of feature values.
+         * @param defaultW        The default weight.
          * @return The computed dot product.
          **/
         public double dot(int[] exampleFeatures, double[] exampleValues, double defaultW) {
@@ -528,7 +588,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * given vector, using the hard coded default weight.
          *
          * @param exampleFeatures The example's array of feature indices.
-         * @param exampleValues The example's array of feature values.
+         * @param exampleValues   The example's array of feature values.
          * @return The computed dot product.
          **/
         public double simpleDot(int[] exampleFeatures, double[] exampleValues) {
@@ -542,8 +602,8 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * this vector.
          *
          * @param exampleFeatures The example's array of feature indices.
-         * @param exampleValues The example's array of feature values.
-         * @param defaultW An initial weight for new features.
+         * @param exampleValues   The example's array of feature values.
+         * @param defaultW        An initial weight for new features.
          * @return The computed dot product.
          **/
         public double simpleDot(int[] exampleFeatures, double[] exampleValues, double defaultW) {
@@ -558,8 +618,8 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * initialize new feature weights.
          *
          * @param exampleFeatures The example's array of feature indices.
-         * @param exampleValues The example's array of feature values.
-         * @param factor The scaling factor.
+         * @param exampleValues   The example's array of feature values.
+         * @param factor          The scaling factor.
          **/
         public void scaledAdd(int[] exampleFeatures, double[] exampleValues, double factor) {
             scaledAdd(exampleFeatures, exampleValues, factor, defaultWeight);
@@ -572,12 +632,12 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * from the given vector is not yet present in this vector.
          *
          * @param exampleFeatures The example's array of feature indices.
-         * @param exampleValues The example's array of feature values.
-         * @param factor The scaling factor.
-         * @param defaultW An initial weight for new features.
+         * @param exampleValues   The example's array of feature values.
+         * @param factor          The scaling factor.
+         * @param defaultW        An initial weight for new features.
          **/
         public void scaledAdd(int[] exampleFeatures, double[] exampleValues, double factor,
-                double defaultW) {
+                              double defaultW) {
             for (int i = 0; i < exampleFeatures.length; i++) {
                 int featureIndex = exampleFeatures[i];
                 double currentWeight = getWeight(featureIndex, defaultW);
@@ -597,7 +657,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * Adds a new value to the current averaged weight indexed by the supplied feature index.
          *
          * @param featureIndex The feature index.
-         * @param w The value to add to the current weight.
+         * @param w            The value to add to the current weight.
          **/
         protected void updateAveragedWeight(int featureIndex, double w) {
             double newWeight = averagedWeights.get(featureIndex, defaultWeight) + w;
@@ -615,10 +675,10 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * @param out The stream to write to.
          **/
         public void write(PrintStream out) {
-            out.println("Begin HashAveragedWeightVector");
+            out.println("Begin AveragedWeightVector");
             for (int i = 0; i < averagedWeights.size(); ++i)
                 out.println(getAveragedWeight(i, 0));
-            out.println("End HashAveragedWeightVector");
+            out.println("End AveragedWeightVector");
         }
 
 
@@ -632,7 +692,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
          * @param lex The feature lexicon.
          **/
         public void write(PrintStream out, Lexicon lex) {
-            out.println("Begin HashAveragedWeightVector");
+            out.println("Begin AveragedWeightVector");
 
             Map map = lex.getMap();
             Map.Entry[] entries = (Map.Entry[]) map.entrySet().toArray(new Map.Entry[map.size()]);
@@ -653,7 +713,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
                 String key =
                         entries[i].getKey().toString()
                                 + (((Integer) entries[i].getValue()).intValue() < weights.size() ? ""
-                                        : " (pruned)");
+                                : " (pruned)");
                 biggest = Math.max(biggest, key.length());
             }
 
@@ -666,7 +726,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
                 String key =
                         entries[i].getKey().toString()
                                 + (((Integer) entries[i].getValue()).intValue() < weights.size() ? ""
-                                        : " (pruned)");
+                                : " (pruned)");
                 out.print(key);
                 for (int j = 0; key.length() + j < biggest; ++j)
                     out.print(" ");
@@ -676,7 +736,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
                 out.println(weight);
             }
 
-            out.println("End HashAveragedWeightVector");
+            out.println("End AveragedWeightVector");
         }
 
 
@@ -695,7 +755,7 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
         /**
          * Reads the representation of a weight vector with this object's run-time type from the
          * given stream, overwriting the data in this object.
-         *
+         * <p>
          * <p>
          * This method is appropriate for reading weight vectors as written by
          * {@link #write(ExceptionlessOutputStream)}.
@@ -710,13 +770,13 @@ public class SparseAveragedPerceptron extends SparsePerceptron {
 
 
         /**
-         * Returns a copy of this <code>HashAveragedWeightVector</code>.
+         * Returns a copy of this <code>AveragedWeightVector</code>.
          *
-         * @return A copy of this <code>HashAveragedWeightVector</code>.
+         * @return A copy of this <code>AveragedWeightVector</code>.
          **/
         public Object clone() {
             AveragedWeightVector clone = (AveragedWeightVector) super.clone();
-            clone.averagedWeights = (DVector) averagedWeights.clone();
+            clone.averagedWeights = (OptimizedVector) averagedWeights.clone();
             return clone;
         }
 

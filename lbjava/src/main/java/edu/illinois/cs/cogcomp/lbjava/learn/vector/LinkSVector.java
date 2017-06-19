@@ -2,29 +2,43 @@ package edu.illinois.cs.cogcomp.lbjava.learn.vector;
 
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessInputStream;
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessOutputStream;
+import gnu.trove.iterator.TIntDoubleIterator;
+import it.unimi.dsi.fastutil.ints.Int2DoubleAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleOpenCustomHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import static edu.illinois.cs.cogcomp.lbjava.learn.vector.OptimizedVector.isZero;
 
 /**
- * Created by haowu4 on 6/16/17.
+ * Created by haowu4 on 6/18/17.
  */
-public class SVector implements Vector {
 
-    Int2DoubleMap values;
-    //    CustomizedTIntDoubleMap values;
+public class LinkSVector implements Vector {
+
+    int[] indices;
+    double[] values;
+
     int size;
 
-    public SVector(int size) {
+
+    public LinkSVector(int size) {
         this(new Int2DoubleOpenHashMap(), size);
     }
 
-    public SVector(Int2DoubleMap values, int size) {
-        this.values = values;
+    public LinkSVector(Int2DoubleMap values, int size) {
+        constructFromDict(values, size);
+    }
+
+    private void constructFromDict(Int2DoubleMap values, int size) {
+        indices = values.keySet().toIntArray();
+        Arrays.sort(indices);
+        this.values = new double[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            this.values[i] = values.get(indices[i]);
+        }
         this.size = size;
     }
 
@@ -41,8 +55,9 @@ public class SVector implements Vector {
     @Override
     public double dot(int[] exampleFeatures, double[] exampleValues) {
         double sum = 0;
+        Int2DoubleAVLTreeMap vs = new Int2DoubleAVLTreeMap();
         for (int i = 0; i < exampleFeatures.length; i++) {
-            sum += this.get(exampleFeatures[i]) * exampleValues[i];
+            vs.put(exampleFeatures[i], exampleValues[i]);
         }
         return sum;
     }
@@ -63,12 +78,12 @@ public class SVector implements Vector {
 
     @Override
     public double get(int i) {
-        return values.get(i);
+        throw new RuntimeException("Linked Sparse Vector is immutable.");
     }
 
     @Override
     public double get(int i, double d) {
-        return values.get(i);
+        throw new RuntimeException("Linked Sparse Vector is immutable.");
     }
 
     @Override
@@ -106,9 +121,8 @@ public class SVector implements Vector {
     @Override
     public double max() {
         double result = -Double.MAX_VALUE;
-
-        for (Int2DoubleMap.Entry it : values.int2DoubleEntrySet()) {
-            double v = it.getDoubleValue();
+        for (int i = 0; i < indices.length; i++) {
+            double v = values[i];
             if (v > result) {
                 result = v;
             }
@@ -118,22 +132,20 @@ public class SVector implements Vector {
 
     @Override
     public double[] toArray() {
-        final double[] ret = new double[this.size];
-        for (Int2DoubleMap.Entry it : values.int2DoubleEntrySet()) {
-            ret[it.getIntKey()] = it.getDoubleValue();
+        double[] ret = new double[this.size];
+        for (int i = 0; i < indices.length; i++) {
+            ret[indices[i]] = values[i];
         }
-
         return ret;
     }
 
     @Override
-    public void write(final ExceptionlessOutputStream out) {
+    public void write(ExceptionlessOutputStream out) {
         out.writeInt(this.size);
-        out.writeInt(this.values.size());
-        //
-        for (Int2DoubleMap.Entry it : values.int2DoubleEntrySet()) {
-            out.writeInt(it.getIntKey());
-            out.writeDouble(it.getDoubleValue());
+        out.writeInt(this.values.length);
+        for (int i = 0; i < indices.length; i++) {
+            out.writeInt(indices[i]);
+            out.writeDouble(values[i]);
         }
     }
 
@@ -141,23 +153,24 @@ public class SVector implements Vector {
     public void read(ExceptionlessInputStream in) {
         this.size = in.readInt();
         int nonZeroCount = in.readInt();
-        this.values = new Int2DoubleOpenHashMap();
+        CustomizedTIntDoubleMap values = new CustomizedTIntDoubleMap();
         for (int i = 0; i < nonZeroCount; i++) {
             int k = in.readInt();
             double v = in.readDouble();
             if (!isZero(v)) {
                 values.put(k, v);
             }
-
         }
+        constructFromDict(values, this.size);
     }
 
     @Override
     public Object clone() {
-        final Int2DoubleOpenHashMap vs = new Int2DoubleOpenHashMap();
-        for (Int2DoubleMap.Entry it : values.int2DoubleEntrySet()) {
-            vs.put(it.getIntKey(), it.getDoubleValue());
+        CustomizedTIntDoubleMap vs = new CustomizedTIntDoubleMap();
+        for (int i = 0; i < indices.length; i++) {
+            vs.put(indices[i], values[i]);
         }
+
         return new SVector(vs, this.size);
     }
 }

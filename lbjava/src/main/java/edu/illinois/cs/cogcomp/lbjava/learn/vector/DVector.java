@@ -55,6 +55,23 @@ public class DVector implements Vector {
         }
     }
 
+    @Override
+    public double dot(int[] exampleFeatures, double[] exampleValues) {
+        double sum = 0;
+        for (int i = 0; i < exampleFeatures.length; i++) {
+            sum += this.get(exampleFeatures[i]) * exampleValues[i];
+        }
+        return sum;
+    }
+
+    @Override
+    public double dot(int[] exampleFeatures, double[] exampleValues, double defaultW) {
+        double sum = 0;
+        for (int i = 0; i < exampleFeatures.length; i++) {
+            sum += this.get(exampleFeatures[i], defaultW) * exampleValues[i];
+        }
+        return sum;
+    }
 
     /**
      * Throws an exception when the specified index is negative.
@@ -72,11 +89,6 @@ public class DVector implements Vector {
     @Override
     public boolean isDense() {
         return true;
-    }
-
-    @Override
-    public Vector optimize() {
-        throw new NotImplementedException();
     }
 
     /**

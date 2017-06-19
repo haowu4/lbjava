@@ -1,7 +1,7 @@
 /**
  * This software is released under the University of Illinois/Research and Academic Use License. See
  * the LICENSE file in the root folder for details. Copyright (c) 2016
- *
+ * <p>
  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
  * http://cogcomp.cs.illinois.edu/
  */
@@ -18,6 +18,8 @@ import edu.illinois.cs.cogcomp.core.datastructures.vectors.DVector;
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessInputStream;
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessOutputStream;
 import edu.illinois.cs.cogcomp.lbjava.classify.Feature;
+import edu.illinois.cs.cogcomp.lbjava.learn.vector.OptimizedVector;
+import edu.illinois.cs.cogcomp.lbjava.learn.vector.Vector;
 import edu.illinois.cs.cogcomp.lbjava.util.ClassUtils;
 
 /**
@@ -34,15 +36,21 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * weight.
      **/
     protected static final double defaultWeight = 0;
-    /** The initial capacity for {@link #weights} if not specified otherwise. */
+    /**
+     * The initial capacity for {@link #weights} if not specified otherwise.
+     */
     protected static final int defaultCapacity = 1 << 10;
 
-    /** The weights in the vector indexed by their {@link Lexicon} key. */
-    protected DVector weights;
+    /**
+     * The weights in the vector indexed by their {@link Lexicon} key.
+     */
+    protected OptimizedVector weights;
 
-    /** Simply instantiates {@link #weights}. */
+    /**
+     * Simply instantiates {@link #weights}.
+     */
     public SparseWeightVector() {
-        this(new DVector(defaultCapacity));
+        this(new OptimizedVector(defaultCapacity));
     }
 
     /**
@@ -51,7 +59,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * @param w An array of weights.
      **/
     public SparseWeightVector(double[] w) {
-        this(new DVector(w));
+        this(new OptimizedVector(w));
     }
 
     /**
@@ -59,7 +67,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
      *
      * @param w A vector of weights.
      **/
-    public SparseWeightVector(DVector w) {
+    public SparseWeightVector(OptimizedVector w) {
         weights = w;
     }
 
@@ -77,7 +85,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * Returns the weight of the given feature.
      *
      * @param featureIndex The feature index.
-     * @param defaultW The default weight.
+     * @param defaultW     The default weight.
      * @return The weight of the feature.
      **/
     public double getWeight(int featureIndex, double defaultW) {
@@ -89,7 +97,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * Sets the weight of the given feature.
      *
      * @param featureIndex The feature index.
-     * @param w The new weight.
+     * @param w            The new weight.
      **/
     public void setWeight(int featureIndex, double w) {
         setWeight(featureIndex, w, defaultWeight);
@@ -99,8 +107,8 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * Sets the weight of the given feature.
      *
      * @param featureIndex The feature index.
-     * @param w The new weight.
-     * @param defaultW The default weight.
+     * @param w            The new weight.
+     * @param defaultW     The default weight.
      **/
     public void setWeight(int featureIndex, double w, double defaultW) {
         weights.set(featureIndex, w, defaultW);
@@ -112,7 +120,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * the hard coded default weight.
      *
      * @param exampleFeatures The example's feature indices.
-     * @param exampleValues The example's feature values.
+     * @param exampleValues   The example's feature values.
      * @return The computed dot product.
      **/
     public double dot(int[] exampleFeatures, double[] exampleValues) {
@@ -124,8 +132,8 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * the specified default weight when one is not yet present in this vector.
      *
      * @param exampleFeatures The example's feature indices.
-     * @param exampleValues The example's feature values.
-     * @param defaultW The default weight.
+     * @param exampleValues   The example's feature values.
+     * @param defaultW        The default weight.
      * @return The computed dot product.
      **/
     public double dot(int[] exampleFeatures, double[] exampleValues, double defaultW) {
@@ -144,7 +152,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * Self-modifying vector addition.
      *
      * @param exampleFeatures The example's feature indices.
-     * @param exampleValues The example's feature values.
+     * @param exampleValues   The example's feature values.
      **/
     public void scaledAdd(int[] exampleFeatures, double[] exampleValues) {
         scaledAdd(exampleFeatures, exampleValues, 1, defaultWeight);
@@ -155,8 +163,8 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * The default weight is used to initialize new feature weights.
      *
      * @param exampleFeatures The example's feature indices.
-     * @param exampleValues The example's feature values.
-     * @param factor The scaling factor.
+     * @param exampleValues   The example's feature values.
+     * @param factor          The scaling factor.
      **/
     public void scaledAdd(int[] exampleFeatures, double[] exampleValues, double factor) {
         scaledAdd(exampleFeatures, exampleValues, factor, defaultWeight);
@@ -166,12 +174,12 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * Self-modifying vector addition where the argument vector is first scaled by the given factor.
      *
      * @param exampleFeatures The example's feature indices.
-     * @param exampleValues The example's feature values.
-     * @param factor The scaling factor.
-     * @param defaultW An initial weight for previously unseen features.
+     * @param exampleValues   The example's feature values.
+     * @param factor          The scaling factor.
+     * @param defaultW        An initial weight for previously unseen features.
      **/
     public void scaledAdd(int[] exampleFeatures, double[] exampleValues, double factor,
-            double defaultW) {
+                          double defaultW) {
         for (int i = 0; i < exampleFeatures.length; i++) {
             int featureIndex = exampleFeatures[i];
             double w = getWeight(featureIndex, defaultW) + factor * exampleValues[i];
@@ -185,8 +193,8 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * factor. The default weight is used to initialize new feature weights.
      *
      * @param exampleFeatures The example's feature indices.
-     * @param exampleValues The example's feature values.
-     * @param factor The scaling factor.
+     * @param exampleValues   The example's feature values.
+     * @param factor          The scaling factor.
      **/
     public void scaledMultiply(int[] exampleFeatures, double[] exampleValues, double factor) {
         scaledMultiply(exampleFeatures, exampleValues, factor, defaultWeight);
@@ -197,12 +205,12 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * factor.
      *
      * @param exampleFeatures The example's feature indices.
-     * @param exampleValues The example's feature values.
-     * @param factor The scaling factor.
-     * @param defaultW An initial weight for previously unseen features.
+     * @param exampleValues   The example's feature values.
+     * @param factor          The scaling factor.
+     * @param defaultW        An initial weight for previously unseen features.
      **/
     public void scaledMultiply(int[] exampleFeatures, double[] exampleValues, double factor,
-            double defaultW) {
+                               double defaultW) {
         for (int i = 0; i < exampleFeatures.length; i++) {
             int featureIndex = exampleFeatures[i];
             double s = exampleValues[i];
@@ -227,14 +235,14 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * the strengths of that feature.
      *
      * @param exampleFeatures The example's feature indices.
-     * @param exampleValues The example's feature values.
-     * @param defaultW An initial weight for previously unseen features.
-     * @param inverse When set to <code>true</code> the weight in this vector is inverted before the
-     *        multiplication takes place.
+     * @param exampleValues   The example's feature values.
+     * @param defaultW        An initial weight for previously unseen features.
+     * @param inverse         When set to <code>true</code> the weight in this vector is inverted before the
+     *                        multiplication takes place.
      * @return A new example vector representing the pairwise multiplication.
      **/
     public Object[] pairwiseMultiply(int[] exampleFeatures, double[] exampleValues,
-            double defaultW, boolean inverse) {
+                                     double defaultW, boolean inverse) {
         int resultFeatures[] = new int[exampleFeatures.length];
         double resultValues[] = new double[exampleFeatures.length];
 
@@ -247,17 +255,20 @@ public class SparseWeightVector implements Cloneable, Serializable {
             resultValues[i] = w * exampleValues[i];
         }
 
-        return new Object[] {resultFeatures, resultValues};
+        return new Object[]{resultFeatures, resultValues};
     }
 
 
-
-    /** Empties the weight map. */
+    /**
+     * Empties the weight map.
+     */
     public void clear() {
-        weights = new DVector(defaultCapacity);
+        weights = new OptimizedVector(defaultCapacity);
     }
 
-    /** Returns the length of the weight vector. */
+    /**
+     * Returns the length of the weight vector.
+     */
     public int size() {
         return weights.size();
     }
@@ -338,7 +349,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
             String key =
                     entries[i].getKey().toString()
                             + (((Integer) entries[i].getValue()).intValue() < weights.size() ? ""
-                                    : " (pruned)");
+                            : " (pruned)");
             biggest = Math.max(biggest, key.length());
         }
 
@@ -352,7 +363,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
             String key =
                     entries[i].getKey().toString()
                             + (((Integer) entries[i].getValue()).intValue() < weights.size() ? ""
-                                    : " (pruned)");
+                            : " (pruned)");
             out.print(key);
             for (int j = 0; key.length() + j < biggest; ++j)
                 out.print(" ");
@@ -379,7 +390,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
 
     /**
      * Creates a string representation of this <code>SparseWeightVector</code>. This method merely
-     * returns the data computed by {@link #write(PrintStream,Lexicon)}.
+     * returns the data computed by {@link #write(PrintStream, Lexicon)}.
      *
      * @param lex The feature lexicon.
      * @return A textual representation of this vector.
@@ -408,7 +419,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
      * stream is expected to first return a string containing the fully qualified class name of the
      * weight vector. If the <i>short</i> value <code>-1</code> appears instead, this method returns
      * <code>null</code>.
-     *
+     * <p>
      * <p>
      * This method is appropriate for reading weight vectors as written by
      * {@link #write(ExceptionlessOutputStream)}.
@@ -440,7 +451,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
     /**
      * Reads the representation of a weight vector with this object's run-time type from the given
      * stream, overwriting the data in this object.
-     *
+     * <p>
      * <p>
      * This method is appropriate for reading weight vectors as written by
      * {@link #write(ExceptionlessOutputStream)}.
@@ -469,7 +480,7 @@ public class SparseWeightVector implements Cloneable, Serializable {
             System.exit(1);
         }
 
-        clone.weights = (DVector) weights.clone();
+        clone.weights = (OptimizedVector) weights.clone();
         return clone;
     }
 
