@@ -2,8 +2,11 @@ package edu.illinois.cs.cogcomp.lbjava.learn.vector;
 
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessInputStream;
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessOutputStream;
+import gnu.trove.strategy.HashingStrategy;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleOpenCustomHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntHash;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -20,7 +23,17 @@ public class SVector implements Vector {
     int size;
 
     public SVector(int size) {
-        this(new Int2DoubleOpenHashMap(), size);
+        this(new Int2DoubleOpenCustomHashMap(new IntHash.Strategy() {
+            @Override
+            public int hashCode(int e) {
+                return e;
+            }
+
+            @Override
+            public boolean equals(int a, int b) {
+                return a == b;
+            }
+        }), size);
     }
 
     public SVector(Int2DoubleMap values, int size) {

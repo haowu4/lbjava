@@ -68,19 +68,29 @@ public class OptimizedVector implements Vector {
         }
 
         double sparsity = ((double) nonZeroValue) / this.size();
-        if (sparsity < 0.01) {
+        if (sparsity < 0.05) {
             // This is a sparse vector.
             if (this.isDense()) {
                 System.out.println("Transferring dense vector to sparse vector. " + sparsity);
                 double[] vs = ((DVector) this.realVector).vector;
-                Int2DoubleMap sparseValues = new Int2DoubleOpenHashMap();
+                Int2DoubleMap sparseValues = new Int2DoubleOpenCustomHashMap(new IntHash.Strategy() {
+                    @Override
+                    public int hashCode(int e) {
+                        return e;
+                    }
+
+                    @Override
+                    public boolean equals(int a, int b) {
+                        return a == b;
+                    }
+                });
                 for (int i = 0; i < vs.length; i++) {
                     double v = vs[i];
                     if (!isZero(v)) {
                         sparseValues.put(i, v);
                     }
                 }
-                ((Int2DoubleOpenHashMap) sparseValues).trim();
+                ((Int2DoubleOpenCustomHashMap) sparseValues).trim();
                 this.realVector = new SVector(sparseValues, this.size());
             }
         }
